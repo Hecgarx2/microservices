@@ -1,6 +1,7 @@
 services:
   mongo:
     image: mongo
+    container_name: mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
@@ -8,6 +9,7 @@ services:
 
   mongo-express:
     image: mongo-express
+    container_name: mongo-express
     restart: always
     ports:
       - 8081:8081
@@ -16,3 +18,9 @@ services:
       ME_CONFIG_BASICAUTH_ENABLED: true
       ME_CONFIG_BASICAUTH_USERNAME: mongoexpressuser
       ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
+
+  users:
+    build: ./
+    container_name: users
+    ports:
+      -  "3000:3000"
