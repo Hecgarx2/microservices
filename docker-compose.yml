@@ -1,15 +1,15 @@
 services:
   mongo:
     image: mongo
-    container_name: mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"
 
   mongo-express:
     image: mongo-express
-    container_name: mongo-express
     restart: always
     ports:
       - 8081:8081
@@ -19,8 +19,29 @@ services:
       ME_CONFIG_BASICAUTH_USERNAME: mongoexpressuser
       ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
 
-  users:
-    build: ./
-    container_name: users
+  users-dev:
+    build:
+      context: ./
+      target: dev 
+    container_name: users-dev
     ports:
-      -  "3000:3000"
+      - "3000:3000"
+    volumes:
+      - .:/app            
+      - /app/node_modules 
+    env_file:
+      - ./.env
+    profiles: ["dev"] 
+
+  users-prod:
+    build:
+      context: ./
+      target: runner      
+    container_name: users-prod
+    command: >
+      sh -c "npx prisma migrate deploy && node dist/main.js"
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env
+    profiles: ["prod"]
