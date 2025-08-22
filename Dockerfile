@@ -5,23 +5,21 @@ COPY package*.json ./
 
 RUN npm config set strict-ssl false \
  && npm config set registry http://registry.npmjs.org/
-
+RUN apk add --no-cache openssl libc6-compat
 
 # Dev
 FROM base AS dev
 
-RUN npm install --verbose
+RUN npm install 
 COPY . .
 
-CMD ["npm", "run", "start:dev"]
+CMD ["sh", "-c", "npx prisma generate && npm run start:dev"]
 
 # Build
 FROM base AS builder
 
-RUN npm install --verbose
+RUN npm install 
 COPY . .
-
-RUN npx prisma generate
 
 RUN npm run build
 
@@ -36,4 +34,4 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "npx prisma generate && node dist/main.js"]
